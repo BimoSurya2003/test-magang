@@ -4,7 +4,10 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Role
+  // =====================
+  // ROLE
+  // =====================
+
   const adminRole = await prisma.role.upsert({
     where: { name: "Administrator" },
     update: {},
@@ -29,20 +32,64 @@ async function main() {
     },
   });
 
-  // Hash Password
+  // =====================
+  // USER ADMIN
+  // =====================
+
   const hashedPassword = await bcrypt.hash("admin123", 10);
 
-  // Admin User
   await prisma.user.upsert({
     where: {
       username: "admin",
     },
+
     update: {},
+
     create: {
       username: "admin",
       password: hashedPassword,
       roleId: adminRole.id,
     },
+  });
+
+  // =====================
+  // DATA DOKTER
+  // =====================
+
+  await prisma.doctor.createMany({
+    data: [
+      {
+        name: "dr. Budi Santoso",
+      },
+      {
+        name: "dr. Andi Wijaya",
+      },
+      {
+        name: "dr. Siti Rahma",
+      },
+    ],
+
+    skipDuplicates: true,
+  });
+
+  // =====================
+  // DATA POLI
+  // =====================
+
+  await prisma.polyclinic.createMany({
+    data: [
+      {
+        name: "Poli Umum",
+      },
+      {
+        name: "Poli Gigi",
+      },
+      {
+        name: "Poli Anak",
+      },
+    ],
+
+    skipDuplicates: true,
   });
 
   console.log("Seeder berhasil dijalankan");

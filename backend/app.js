@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import authRoute from "./src/routes/auth.route.js";
+import patientRoute from "./src/routes/patient.route.js";
+import registrationRoute from "./src/routes/registration.route.js";
+import queueRoute from "./src/routes/queue.route.js";
 
 dotenv.config();
 
@@ -15,17 +18,20 @@ app.use(morgan("dev"));
 
 // Default Route
 app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "Mini Clinic Information System API"
-    });
+  res.json({
+    success: true,
+    message: "Mini Clinic Information System API",
+  });
 });
 
-// Authentication Route
+// Route
 app.use("/api/auth", authRoute);
+app.use("/api/patients", patientRoute);
+app.use("/api/registrations", registrationRoute);
+app.use("/api/queues", queueRoute);
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

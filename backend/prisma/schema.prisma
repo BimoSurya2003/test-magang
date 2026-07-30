@@ -85,7 +85,7 @@ model Registration {
   paymentType String
   complaint   String
 
-  status VisitStatus
+  status VisitStatus @default(WAITING)
 
   patient    Patient    @relation(fields: [patientId], references: [id])
   doctor     Doctor     @relation(fields: [doctorId], references: [id])
@@ -104,7 +104,7 @@ model Queue {
   registrationId Int @unique
 
   queueNumber String
-  status      VisitStatus
+  status VisitStatus @default(WAITING)
 
   registration Registration @relation(fields: [registrationId], references: [id])
 

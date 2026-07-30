@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum VisitStatus {
+  WAITING
+  CHECK_IN
+  EXAMINATION
+  FINISHED
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  users User[]
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  roleId   Int
+
+  role Role @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Patient {
+  id            Int      @id @default(autoincrement())
+  medicalRecord String   @unique
+  nik           String   @unique
+  name          String
+  gender        Gender
+  birthDate     DateTime
+  phone         String
+  address       String
+
+  registrations  Registration[]
+  medicalRecords MedicalRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Doctor {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  registrations Registration[]
+}
+
+model Polyclinic {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  registrations Registration[]
+}
+
+model Registration {
+  id Int @id @default(autoincrement())
+
+  patientId    Int
+  doctorId     Int
+  polyclinicId Int
+
+  visitDate   DateTime
+  paymentType String
+  complaint   String
+
+  status VisitStatus
+
+  patient    Patient    @relation(fields: [patientId], references: [id])
+  doctor     Doctor     @relation(fields: [doctorId], references: [id])
+  polyclinic Polyclinic @relation(fields: [polyclinicId], references: [id])
+
+  queue         Queue?
+  medicalRecord MedicalRecord?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Queue {
+  id Int @id @default(autoincrement())
+
+  registrationId Int @unique
+
+  queueNumber String
+  status      VisitStatus
+
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model MedicalRecord {
+  id Int @id @default(autoincrement())
+
+  registrationId Int @unique
+  patientId      Int
+
+  subjective    String
+  bloodPressure String
+  temperature   Float
+  weight        Float
+  height        Float
+  assessment    String
+  plan          String
+
+  registration Registration @relation(fields: [registrationId], references: [id])
+  patient      Patient      @relation(fields: [patientId], references: [id])
+
+  actions       MedicalAction[]
+  prescriptions Prescription[]
+
+  createdAt DateTime @default(now())
+}
+
+model MedicalAction {
+  id Int @id @default(autoincrement())
+
+  medicalRecordId Int
+
+  action String
+
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+}
+
+model Prescription {
+  id Int @id @default(autoincrement())
+
+  medicalRecordId Int
+
+  medicine    String
+  dosage      String
+  instruction String
+
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+}

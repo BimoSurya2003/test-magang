@@ -2,7 +2,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import MasterDataPasient  from "./pages/MasterDataPasien";
 import PendaftaranPasien from "./pages/PendaftaranPasien";
-import DashboardAdmin from "./pages/DashboardAdmin";
+import Antrian from "./pages/Antrian";
+import PemeriksaanDokter from "./pages/PemeriksaanDokter";
+import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 function App() {
@@ -14,7 +16,7 @@ function App() {
           path="/dashboard"
           element={
             <DashboardLayout title="Dashboard">
-              <DashboardAdmin />
+              <Dashboard />
             </DashboardLayout>
           }
         />
@@ -33,6 +35,24 @@ function App() {
           element={
             <DashboardLayout title="Pendaftaran Pasien">
               <PendaftaranPasien />
+            </DashboardLayout>
+          }
+        />
+
+        <Route
+          path="/antrean"
+          element={
+            <DashboardLayout title="Antrian Pasien">
+              <Antrian />
+            </DashboardLayout>
+          }
+        />
+
+        <Route
+          path="/pemeriksaan"
+          element={
+            <DashboardLayout title="Modul Pemeriksaan Dokter">
+              <PemeriksaanDokter />
             </DashboardLayout>
           }
         />

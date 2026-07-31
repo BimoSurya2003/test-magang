@@ -24,8 +24,8 @@ const Sidebar = ({ onLogout }) => {
     { path: "/antrean", label: "Manajemen Antrean", icon: CalendarCheck },
     { path: "/pasien", label: "Data Master Pasien", icon: Users },
     { path: "/pemeriksaan", label: "Pemeriksaan Dokter", icon: Stethoscope },
-    { path: "/rekam-medis", label: "Riwayat Rekam Medis", icon: FileText },
-    { path: "/dokter", label: "Master Dokter & Poli", icon: Building2 },
+    // { path: "/rekam-medis", label: "Riwayat Rekam Medis", icon: FileText },
+    // { path: "/dokter", label: "Master Dokter & Poli", icon: Building2 },
   ];
 
   return (

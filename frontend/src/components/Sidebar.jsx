@@ -20,7 +20,7 @@ import { NavLink } from "react-router-dom";
 const Sidebar = ({ onLogout }) => {
   const menuItems = [
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/pendaftaran", label: "Pendaftaran Pasien", icon: ClipboardList },
+    { path: "/pendaftaran-pasien", label: "Pendaftaran Pasien", icon: ClipboardList },
     { path: "/antrean", label: "Manajemen Antrean", icon: CalendarCheck },
     { path: "/pasien", label: "Data Master Pasien", icon: Users },
     { path: "/pemeriksaan", label: "Pemeriksaan Dokter", icon: Stethoscope },

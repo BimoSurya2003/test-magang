@@ -6,6 +6,9 @@ import authRoute from "./src/routes/auth.route.js";
 import patientRoute from "./src/routes/patient.route.js";
 import registrationRoute from "./src/routes/registration.route.js";
 import queueRoute from "./src/routes/queue.route.js";
+import doctorRoute from "./src/routes/doctor.route.js";
+import polyclinicRoute from "./src/routes/polyclinic.route.js";
+
 
 dotenv.config();
 
@@ -29,6 +32,8 @@ app.use("/api/auth", authRoute);
 app.use("/api/patients", patientRoute);
 app.use("/api/registrations", registrationRoute);
 app.use("/api/queues", queueRoute);
+app.use("/api/doctors", doctorRoute);
+app.use("/api/polyclinics", polyclinicRoute);
 
 const PORT = process.env.PORT || 3000;
 

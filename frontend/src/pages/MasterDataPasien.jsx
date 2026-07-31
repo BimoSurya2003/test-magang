@@ -12,6 +12,8 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
+import SuccessModal from "../components/modal/SuccessModal";
+import ConfirmModal from "../components/modal/ConfirmModal";
 
 const API_BASE_URL = "http://localhost:3000/api/patients"; // Sesuaikan URL API Express Anda
 const ITEMS_PER_PAGE = 5;
@@ -100,7 +102,13 @@ const emptyForm = {
   address: "",
 };
 
-const PatientFormModal = ({ mode, initialData, onClose, onSubmitSuccess }) => {
+const PatientFormModal = ({
+  mode,
+  initialData,
+  onClose,
+  onSubmitSuccess,
+  setSuccessModal,
+}) => {
   const [form, setForm] = useState(
     mode === "ubah" && initialData
       ? {
@@ -134,6 +142,14 @@ const PatientFormModal = ({ mode, initialData, onClose, onSubmitSuccess }) => {
         await axiosClient.put(`/${initialData.id}`, form);
       }
       onSubmitSuccess();
+      setSuccessModal({
+        open: true,
+        title: "Berhasil",
+        message:
+          mode === "tambah"
+            ? "Data pasien berhasil ditambahkan."
+            : "Data pasien berhasil diperbarui.",
+      });
       onClose();
     } catch (err) {
       setError(err.response?.data?.message || "Terjadi kesalahan pada server.");
@@ -391,6 +407,21 @@ const PatientsTable = () => {
   const [formModal, setFormModal] = useState(null); // { mode: 'tambah' | 'ubah', data?: patient }
   const [detailPatientId, setDetailPatientId] = useState(null);
 
+  const [successModal, setSuccessModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+  });
+
+  // State untuk ConfirmModal — menyimpan data pasien yang MAU dihapus.
+  // Selama confirmModal.open === true, belum ada API call apa pun yang jalan;
+  // request DELETE baru dikirim setelah user menekan tombol "Hapus" di dalam modal.
+  const [confirmModal, setConfirmModal] = useState({
+    open: false,
+    patient: null,
+  });
+  const [deleting, setDeleting] = useState(false);
+
   // Fetch Data Pasien dari Express API
   const fetchPatients = useCallback(async () => {
     setLoading(true);
@@ -425,19 +456,32 @@ const PatientsTable = () => {
     setCurrentPage(1);
   };
 
-  const handleDelete = async (patient) => {
-    if (
-      confirm(
-        `Hapus data pasien "${patient.name}"? Tindakan ini tidak bisa dibatalkan.`,
-      )
-    ) {
-      try {
-        const axiosClient = getAuthAxios();
-        await axiosClient.delete(`/${patient.id}`);
-        fetchPatients();
-      } catch (err) {
-        alert(err.response?.data?.message || "Gagal menghapus data pasien");
-      }
+  // Klik ikon hapus di tabel → cuma buka ConfirmModal, belum ada API call.
+  const handleDeleteClick = (patient) => {
+    setConfirmModal({ open: true, patient });
+  };
+
+  // Klik "Hapus" di dalam ConfirmModal → baru di sini API delete dijalankan.
+  const handleConfirmDelete = async () => {
+    const patient = confirmModal.patient;
+    if (!patient) return;
+
+    setDeleting(true);
+    try {
+      const axiosClient = getAuthAxios();
+      await axiosClient.delete(`/${patient.id}`);
+      await fetchPatients();
+      setConfirmModal({ open: false, patient: null });
+      setSuccessModal({
+        open: true,
+        title: "Berhasil",
+        message: "Data pasien berhasil dihapus.",
+      });
+    } catch (err) {
+      setConfirmModal({ open: false, patient: null });
+      alert(err.response?.data?.message || "Gagal menghapus data pasien");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -466,8 +510,8 @@ const PatientsTable = () => {
 
       <div className="overflow-x-auto relative">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider">
-            <tr>
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wider font-semibold text-slate-600">
               <th className="py-3 px-4">No. RM</th>
               <th className="py-3 px-4">NIK</th>
               <th className="py-3 px-4">Nama Pasien</th>
@@ -521,7 +565,7 @@ const PatientsTable = () => {
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(p)}
+                        onClick={() => handleDeleteClick(p)}
                         className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"
                         title="Hapus"
                       >
@@ -559,6 +603,7 @@ const PatientsTable = () => {
           initialData={formModal.data}
           onClose={() => setFormModal(null)}
           onSubmitSuccess={fetchPatients}
+          setSuccessModal={setSuccessModal}
         />
       )}
 
@@ -566,6 +611,32 @@ const PatientsTable = () => {
         <PatientDetailModal
           patientId={detailPatientId}
           onClose={() => setDetailPatientId(null)}
+        />
+      )}
+
+      <ConfirmModal
+        open={confirmModal.open}
+        title="Hapus Data Pasien"
+        message={
+          confirmModal.patient
+            ? `Hapus data pasien "${confirmModal.patient.name}"? Tindakan ini tidak bisa dibatalkan.`
+            : ""
+        }
+        onCancel={() => setConfirmModal({ open: false, patient: null })}
+        onConfirm={handleConfirmDelete}
+      />
+
+      {successModal.open && (
+        <SuccessModal
+          title={successModal.title}
+          message={successModal.message}
+          onClose={() =>
+            setSuccessModal({
+              open: false,
+              title: "",
+              message: "",
+            })
+          }
         />
       )}
     </div>

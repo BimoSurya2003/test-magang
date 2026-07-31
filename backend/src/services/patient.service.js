@@ -80,3 +80,27 @@ export const createPatientService = async (data) => {
     },
   });
 };
+
+export const updatePatientService = async (id, data) => {
+  return await prisma.patient.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      nik: data.nik,
+      name: data.name,
+      gender: data.gender,
+      birthDate: new Date(data.birthDate),
+      phone: data.phone,
+      address: data.address,
+    },
+  });
+};
+
+export const deletePatientService = async (id) => {
+  return await prisma.patient.delete({
+    where: {
+      id: Number(id),
+    },
+  });
+};

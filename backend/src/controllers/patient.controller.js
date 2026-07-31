@@ -2,6 +2,8 @@ import {
   getPatientsService,
   getPatientByIdService,
   createPatientService,
+  updatePatientService,
+  deletePatientService
 } from "../services/patient.service.js";
 
 export const getPatients = async (req, res) => {
@@ -54,6 +56,39 @@ export const createPatient = async (req, res) => {
       success: true,
       message: "Patient berhasil ditambahkan",
       data: patient,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updatePatient = async (req, res) => {
+  try {
+    const patient = await updatePatientService(req.params.id, req.body);
+
+    res.json({
+      success: true,
+      message: "Patient berhasil diupdate",
+      data: patient,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const deletePatient = async (req, res) => {
+  try {
+    await deletePatientService(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Patient berhasil dihapus",
     });
   } catch (error) {
     res.status(400).json({

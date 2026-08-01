@@ -23,28 +23,47 @@ const Sidebar = ({ onLogout }) => {
   }, []);
 
   const menuItems = [
-    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    {
+      path: "/dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      roles: ["ADMIN", "PETUGAS", "DOKTER"],
+    },
     {
       path: "/pendaftaran-pasien",
       label: "Pendaftaran Pasien",
       icon: ClipboardList,
+      roles: ["ADMIN", "PETUGAS"],
     },
     {
       path: "/antrean",
       label: "Manajemen Antrean",
       icon: CalendarCheck,
+      roles: ["ADMIN", "PETUGAS", "DOKTER"],
     },
     {
       path: "/pasien",
       label: "Data Master Pasien",
       icon: Users,
+      roles: ["ADMIN", "PETUGAS"],
     },
     {
       path: "/pemeriksaan",
       label: "Pemeriksaan Dokter",
       icon: Stethoscope,
+      roles: ["ADMIN", "DOKTER"],
     },
   ];
+
+  const filteredMenuItems = menuItems.filter((item) =>
+    item.roles.includes(user?.role)
+  );
+
+  const roleLabel = {
+    ADMIN: "Administrator",
+    PETUGAS: "Registration Officer",
+    DOKTER: "Doctor",
+  };
 
   const handleLogout = () => {
     if (onLogout) {
@@ -78,7 +97,7 @@ const Sidebar = ({ onLogout }) => {
 
       {/* Menu */}
       <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-        {menuItems.map(({ path, label, icon: Icon }) => (
+        {filteredMenuItems.map(({ path, label, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}
@@ -100,12 +119,14 @@ const Sidebar = ({ onLogout }) => {
       <div className="mt-auto p-4 border-t border-slate-700/60 flex items-center justify-between bg-slate-900/40">
         <div className="text-xs">
           <p className="font-semibold text-slate-200">
-            {user?.role || "-"}
+            {roleLabel[user?.role] || "-"}
           </p>
 
-          {/* <p className="text-[10px] text-teal-400">
+          {/* 
+          <p className="text-[10px] text-teal-400">
             {user?.username || ""}
-          </p> */}
+          </p> 
+          */}
         </div>
 
         <button

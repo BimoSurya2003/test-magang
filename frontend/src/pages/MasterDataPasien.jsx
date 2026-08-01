@@ -225,10 +225,14 @@ const PatientFormModal = ({
                 Jenis Kelamin
               </label>
               <select
+                required
                 value={form.gender}
                 onChange={(e) => setForm({ ...form, gender: e.target.value })}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white"
               >
+                <option value="" disabled>
+                  -- Pilih Jenis Kelamin --
+                </option>
                 <option value="MALE">Laki-laki</option>
                 <option value="FEMALE">Perempuan</option>
               </select>

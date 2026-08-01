@@ -8,6 +8,7 @@ import registrationRoute from "./src/routes/registration.route.js";
 import queueRoute from "./src/routes/queue.route.js";
 import doctorRoute from "./src/routes/doctor.route.js";
 import polyclinicRoute from "./src/routes/polyclinic.route.js";
+import medicalRecordRoutes from "./src/routes/medical.record.routes.js";
 
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.use("/api/registrations", registrationRoute);
 app.use("/api/queues", queueRoute);
 app.use("/api/doctors", doctorRoute);
 app.use("/api/polyclinics", polyclinicRoute);
+app.use("/api/medical-records", medicalRecordRoutes);
 
 const PORT = process.env.PORT || 3000;
 

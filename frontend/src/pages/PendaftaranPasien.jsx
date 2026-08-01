@@ -8,10 +8,13 @@ import {
   Trash2,
   AlertTriangle,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import SuccessModal from "../components/modal/SuccessModal";
 
 const API_BASE_URL = "http://localhost:3000/api"; // Sesuaikan port & prefix API kamu
+const ITEMS_PER_PAGE = 10;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -44,6 +47,62 @@ const statusClass = {
   FINISHED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
 };
 
+// ---------- Sub-komponen: Pagination (mengikuti gaya halaman Data Pasien) ----------
+const Pagination = ({
+  currentPage,
+  totalPages,
+  totalItems,
+  itemsPerPage,
+  onPageChange,
+}) => {
+  if (totalPages <= 1) return null;
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 text-xs">
+      <p className="text-slate-500">
+        Menampilkan{" "}
+        <span className="font-semibold text-slate-700">
+          {totalItems > 0 ? startItem : 0}-{endItem}
+        </span>{" "}
+        dari <span className="font-semibold text-slate-700">{totalItems}</span>{" "}
+        pendaftaran
+      </p>
+      <div className="flex items-center space-x-1">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+        </button>
+        {pageNumbers.map((num) => (
+          <button
+            key={num}
+            onClick={() => onPageChange(num)}
+            className={`w-7 h-7 rounded-lg font-semibold ${
+              num === currentPage
+                ? "bg-teal-600 text-white"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            {num}
+          </button>
+        ))}
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function RegistrationPage() {
   const [registrations, setRegistrations] = useState([]);
   const [patients, setPatients] = useState([]);
@@ -52,6 +111,7 @@ export default function RegistrationPage() {
 
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -201,6 +261,12 @@ export default function RegistrationPage() {
     }
   };
 
+  // Reset ke halaman 1 setiap kali kata kunci pencarian berubah
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
   // Filter Search
   const filteredRegistrations = registrations.filter((reg) => {
     const patientName = reg.patient?.name || reg.patient?.nama || "";
@@ -214,6 +280,16 @@ export default function RegistrationPage() {
       polyName.toLowerCase().includes(search)
     );
   });
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredRegistrations.length / ITEMS_PER_PAGE)
+  );
+
+  const paginatedRegistrations = filteredRegistrations.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 bg-slate-50 min-h-screen">
@@ -247,7 +323,7 @@ export default function RegistrationPage() {
             type="text"
             placeholder="Cari nama pasien, dokter, atau poli..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-700"
           />
         </div>
@@ -284,12 +360,14 @@ export default function RegistrationPage() {
                   </td>
                 </tr>
               ) : (
-                filteredRegistrations.map((item, index) => (
+                paginatedRegistrations.map((item, index) => (
                   <tr
                     key={item.id}
                     className="hover:bg-slate-50 transition-colors"
                   >
-                    <td className="py-3.5 px-4">{index + 1}</td>
+                    <td className="py-3.5 px-4">
+                      {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                    </td>
                     <td className="py-3.5 px-4">
                       {item.patient?.name ||
                         item.patient?.nama ||
@@ -355,6 +433,14 @@ export default function RegistrationPage() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredRegistrations.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Modal Form (Tambah / Edit) */}

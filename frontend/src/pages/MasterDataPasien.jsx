@@ -16,7 +16,7 @@ import SuccessModal from "../components/modal/SuccessModal";
 import ConfirmModal from "../components/modal/ConfirmModal";
 
 const API_BASE_URL = "http://localhost:3000/api/patients"; // Sesuaikan URL API Express Anda
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 // Helper Axios Instance dengan Header Auth otomatis
 const getAuthAxios = () => {

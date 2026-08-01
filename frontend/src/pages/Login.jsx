@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   User,
   Lock,
@@ -19,6 +20,16 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    navigate("/dashboard", { replace: true });
+  }
+}, [navigate]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -35,7 +46,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/login", // sesuaikan dengan endpoint backend
+        "http://localhost:3000/api/auth/login",
         {
           username: formData.username,
           password: formData.password,
@@ -47,14 +58,13 @@ const Login = () => {
       // Simpan token jika backend mengirim token
       if (result.data?.token) {
         localStorage.setItem("token", result.data.token);
+        localStorage.setItem("user", JSON.stringify(result.data.user));
       }
 
-      alert(result.message);
+      // alert(result.message);
+      // console.log(result.data);
 
-      console.log(result.data);
-
-      // Contoh redirect
-      // window.location.href = "/dashboard";
+      navigate("/dashboard");
     } catch (error) {
       setErrorMsg(
         error.response?.data?.message || "Terjadi kesalahan pada server.",
